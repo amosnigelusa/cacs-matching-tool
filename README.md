@@ -1,5 +1,7 @@
 # 12twenty Import Fixer
 
+**Live app:** https://cacs-12twenty-import-fixer.vercel.app
+
 Fixes invalid picklist values in a 12twenty bulk-upload CSV so the file imports
 without "Picklist option 'X' does not exist" errors. Everything runs in your
 browser — your data never leaves your computer, there's no upload step and no

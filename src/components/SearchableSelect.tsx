@@ -34,16 +34,20 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
       if (r) setRect({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 220) });
     };
     updateRect();
-    const close = () => setOpen(false);
+    const onScroll = (e: Event) => {
+      // scrolling within the results list itself shouldn't move or close the popup
+      if (popRef.current?.contains(e.target as Node)) return;
+      updateRect();
+    };
     const onDocClick = (e: MouseEvent) => {
       if (inputRef.current?.contains(e.target as Node) || popRef.current?.contains(e.target as Node)) return;
       setOpen(false);
     };
-    window.addEventListener("scroll", close, true);
+    window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", updateRect);
     document.addEventListener("mousedown", onDocClick);
     return () => {
-      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", updateRect);
       document.removeEventListener("mousedown", onDocClick);
     };
