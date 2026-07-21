@@ -70,6 +70,14 @@ export function ValueRowContent({ hi, item, options }: ValueRowContentProps) {
                   meaning
                 </span>
               )}
+              {s.source === "alias" && (
+                <span
+                  className="rounded bg-blue-50 px-1 text-[10px] text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                  title="Recognized as a known abbreviation or alternate name"
+                >
+                  alias
+                </span>
+              )}
               <span className={`rounded px-1 font-mono text-[10px] ${scoreChipClass(s.score)}`}>
                 {Math.round(s.score * 100)}%
               </span>

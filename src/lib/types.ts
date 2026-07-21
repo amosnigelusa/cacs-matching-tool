@@ -5,6 +5,8 @@ export interface Picklist {
   fileName: string;
   columns: Record<string, string[]>;
   activeColumn: string;
+  /** true for the app's bundled reference picklists (e.g. university/city), loaded automatically */
+  builtIn?: boolean;
 }
 
 export interface RawData {
@@ -15,10 +17,18 @@ export interface RawData {
 /** headerIndex -> picklist name | PASSTHROUGH */
 export type ColumnMap = Record<number, string>;
 
+/**
+ * "all" - every distinct value
+ * "unresolved" - strictly nothing decided yet (no mapped value at all)
+ * "matched" - already has a mapped value, of any source
+ * "needs-review" - unresolved, plus auto/alias matches worth a second look
+ */
+export type FilterMode = "all" | "unresolved" | "matched" | "needs-review";
+
 /** headerIndex -> { rawValue: mapped } ("" = blank) */
 export type ValueMaps = Record<number, Record<string, string>>;
 
-export type SuggestionSource = "text" | "semantic";
+export type SuggestionSource = "text" | "semantic" | "alias";
 
 export interface MatchSuggestion {
   option: string;
@@ -44,7 +54,7 @@ export interface AnalysisColumn {
 /** headerIndex -> AnalysisColumn, only for columns attached to a picklist */
 export type Analysis = Record<number, AnalysisColumn>;
 
-export type EffectiveSource = "manual" | "auto-blank" | "exact" | "auto" | "unresolved";
+export type EffectiveSource = "manual" | "auto-blank" | "exact" | "alias" | "auto" | "unresolved";
 
 export interface EffectiveMapping {
   mapped: string | null;

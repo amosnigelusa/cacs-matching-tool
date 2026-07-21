@@ -75,6 +75,14 @@ export default function PicklistLoader() {
               className="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs dark:bg-slate-800"
             >
               <span className="font-mono font-semibold">{name}</span>
+              {pl.builtIn && (
+                <span
+                  className="rounded bg-teal-100 px-1 text-[10px] font-medium text-teal-700 dark:bg-teal-500/15 dark:text-teal-300"
+                  title="Bundled with the app; updates automatically when the reference file changes"
+                >
+                  default
+                </span>
+              )}
               <span className="text-slate-400 dark:text-slate-500">({optionCount} options)</span>
               {target && <span className="text-teal-700 dark:text-teal-400">→ {target}</span>}
               {cols.length > 1 && (

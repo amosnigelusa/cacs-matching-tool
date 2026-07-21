@@ -1,3 +1,6 @@
+/** bundled reference picklist (University + City), auto-loaded on startup; swap this file to update it */
+export const BUILT_IN_PICKLIST_URL = "/docs/consolidated_cities_unis.csv";
+
 /* ---- optional semantic matching model ---- */
 export const EMBEDDING_MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 /** quantized (~23MB) vs. fp32 (~90MB) - keeps the one-time download small */

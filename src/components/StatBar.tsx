@@ -7,7 +7,15 @@ import { useShallow } from "zustand/react/shallow";
 import { computeStats } from "@/lib/analysis";
 import { triggerDownload } from "@/lib/download";
 import { buildMappingExport } from "@/lib/mapping-io";
+import type { FilterMode } from "@/lib/types";
 import { useAppStore } from "@/store/useAppStore";
+
+const FILTER_OPTIONS: { value: FilterMode; label: string }[] = [
+  { value: "needs-review", label: "Needs review" },
+  { value: "unresolved", label: "Unresolved only" },
+  { value: "matched", label: "Matched only" },
+  { value: "all", label: "All values" },
+];
 
 export default function StatBar() {
   const analysis = useAppStore((s) => s.analysis);
@@ -47,14 +55,21 @@ export default function StatBar() {
         )}
       </div>
       <div className="flex gap-2">
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-          onClick={() => setFilter(filter === "all" ? "unresolved" : "all")}
-        >
-          <ListFilter size={13} />
-          Showing: {filter === "all" ? "all values" : "needs review"}
-        </button>
+        <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700">
+          <ListFilter size={13} className="shrink-0 text-slate-500 dark:text-slate-400" />
+          <span className="text-slate-500 dark:text-slate-400">Showing:</span>
+          <select
+            className="bg-transparent text-[13px] outline-none"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterMode)}
+          >
+            {FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"

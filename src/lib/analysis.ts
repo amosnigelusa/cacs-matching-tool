@@ -1,3 +1,4 @@
+import { buildAliasMap, lookupAlias } from "./aliases";
 import { PICKLIST_TO_COLUMN } from "./constants";
 import { mergeSuggestions } from "./embeddings";
 import { matchScore, topMatches } from "./matching";
@@ -7,6 +8,8 @@ import type {
   Analysis,
   ColumnMap,
   EffectiveMapping,
+  FilterMode,
+  MatchSuggestion,
   Picklist,
   RawData,
   SemanticSuggestions,
@@ -57,6 +60,7 @@ export function buildAnalysis(raw: RawData, columnMap: ColumnMap, picklists: Rec
     if (!options.length) return;
 
     const optNorm = new Map(options.map((o) => [norm(o), o]));
+    const aliasMap = buildAliasMap(options);
     const counts = new Map<string, number>();
     raw.rows.forEach((r) => {
       const v = String(r[hi] ?? "").trim();
@@ -66,7 +70,14 @@ export function buildAnalysis(raw: RawData, columnMap: ColumnMap, picklists: Rec
     const values: ValueRecord[] = [...counts.entries()].map(([v, count]) => {
       const exact = optNorm.get(norm(v)) ?? null;
       const blank = isBlankish(v);
-      const suggestions = exact || blank ? [] : topMatches(v, options);
+      let suggestions: MatchSuggestion[] = [];
+      if (!exact && !blank) {
+        const textSuggestions = topMatches(v, options);
+        const alias = lookupAlias(aliasMap, v);
+        suggestions = alias
+          ? mergeSuggestions([{ option: alias, score: 1, source: "alias" }], textSuggestions)
+          : textSuggestions;
+      }
       return { value: v, count, exact, blank, suggestions };
     });
     values.sort((a, b) => b.count - a.count);
@@ -82,6 +93,9 @@ export function effectiveFor(v: ValueRecord, userMap: Record<string, string> | u
   if (v.blank) return { mapped: "", source: "auto-blank" };
   if (v.exact) return { mapped: v.exact, source: "exact" };
   const top = v.suggestions[0];
+  // alias hits (e.g. "CUA" -> "Catholic University of America") are rule-based, not a probabilistic
+  // guess, so - unlike semantic suggestions - they're precise enough to auto-accept
+  if (top && top.source === "alias") return { mapped: top.option, source: "alias" };
   // semantic (meaning-based) suggestions always need a manual click, however confident -
   // only string-similarity matches auto-accept
   if (top && top.source === "text" && top.score >= 0.85) return { mapped: top.option, source: "auto" };
@@ -110,8 +124,24 @@ export function mergeSemanticIntoAnalysis(analysis: Analysis, semantic: Semantic
   return out;
 }
 
-export function showsActions(v: ValueRecord, eff: EffectiveMapping, filter: "all" | "unresolved"): boolean {
-  return (eff.source === "unresolved" || eff.source === "auto" || filter === "all") && !v.exact;
+export function matchesFilter(eff: EffectiveMapping, filter: FilterMode): boolean {
+  switch (filter) {
+    case "all":
+      return true;
+    case "unresolved":
+      return eff.mapped === null;
+    case "matched":
+      return eff.mapped !== null;
+    case "needs-review":
+      return eff.source === "unresolved" || eff.source === "auto" || eff.source === "alias";
+  }
+}
+
+export function showsActions(v: ValueRecord, eff: EffectiveMapping, filter: FilterMode): boolean {
+  // "all"/"matched" show override controls for every resolved value (exact stays locked); the other
+  // filters only ever surface unresolved/auto/alias rows anyway, which already always show actions
+  const alwaysVisible = filter === "all" || filter === "matched";
+  return (eff.source === "unresolved" || eff.source === "auto" || eff.source === "alias" || alwaysVisible) && !v.exact;
 }
 
 export function computeStats(analysis: Analysis, valueMaps: ValueMaps) {

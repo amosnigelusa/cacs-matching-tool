@@ -4,12 +4,26 @@ import { CheckCircle2, ChevronRight, CircleAlert } from "lucide-react";
 import { useMemo } from "react";
 import { List } from "react-window";
 
-import { effectiveFor, showsActions } from "@/lib/analysis";
+import { effectiveFor, matchesFilter, showsActions } from "@/lib/analysis";
+import type { FilterMode } from "@/lib/types";
 import { useAppStore } from "@/store/useAppStore";
 import { ValueRowContent, VirtualValueRow, type ShownValue, type VirtualRowProps } from "./ValueRow";
 
 const VIRTUALIZE_THRESHOLD = 50;
 const LIST_HEIGHT = 420;
+
+function emptyMessage(filter: FilterMode): string {
+  switch (filter) {
+    case "unresolved":
+      return "Nothing unresolved here.";
+    case "matched":
+      return "Nothing matched here yet.";
+    case "needs-review":
+      return "Nothing needs review here.";
+    case "all":
+      return "No values in this column.";
+  }
+}
 
 export default function ColumnReviewCard({ hi }: { hi: number }) {
   const col = useAppStore((s) => s.analysis[hi]);
@@ -25,7 +39,7 @@ export default function ColumnReviewCard({ hi }: { hi: number }) {
     col.values.forEach((v) => {
       const eff = effectiveFor(v, valueMap);
       if (eff.mapped === null) unresolved++;
-      if (filter !== "all" && eff.source !== "unresolved" && eff.source !== "auto") return;
+      if (!matchesFilter(eff, filter)) return;
       filtered.push({ v, eff, needsActions: showsActions(v, eff, filter) });
     });
     return { shown: filtered, unresolvedCount: unresolved };
@@ -68,9 +82,7 @@ export default function ColumnReviewCard({ hi }: { hi: number }) {
       {open && (
         <div className="border-t border-slate-100 dark:border-slate-800">
           {shown.length === 0 ? (
-            <div className="px-4 py-3.5 text-[13px] text-slate-500 dark:text-slate-400">
-              Nothing needs review here.
-            </div>
+            <div className="px-4 py-3.5 text-[13px] text-slate-500 dark:text-slate-400">{emptyMessage(filter)}</div>
           ) : shown.length > VIRTUALIZE_THRESHOLD ? (
             <List<VirtualRowProps>
               style={{ height: LIST_HEIGHT }}

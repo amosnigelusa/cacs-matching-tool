@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Download, Link2 } from "lucide-react";
 import Papa from "papaparse";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { buildExportRows, computeStats } from "@/lib/analysis";
@@ -25,6 +25,11 @@ export default function ImportFixer() {
   const analysis = useAppStore((s) => s.analysis);
   const valueMaps = useAppStore(useShallow((s) => s.valueMaps));
   const analysisHis = useMemo(() => Object.keys(analysis).map(Number), [analysis]);
+  const loadBuiltInPicklists = useAppStore((s) => s.loadBuiltInPicklists);
+
+  useEffect(() => {
+    loadBuiltInPicklists();
+  }, [loadBuiltInPicklists]);
 
   const attached = Object.values(columnMap).some((v) => v !== PASSTHROUGH);
   const hasColumnMap = Object.keys(columnMap).length > 0;

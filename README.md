@@ -37,6 +37,14 @@ npm start
 2. **Outcomes data file** — load your full import file (e.g. `cleaned.csv`).
    All headers and untouched columns are preserved exactly on export.
 
+   **University, City, and Knowledge Source are already loaded for you** —
+   they're bundled with the app (`public/docs/consolidated_cities_unis.csv`)
+   and load automatically, tagged **default**. Each column in that file
+   becomes its own picklist, so adding a new default field later is just
+   adding a new column. Swap the file and redeploy to update it; no code
+   changes needed. You can still add or remove any of them like any other
+   picklist.
+
 3. Click **Attach picklists to data columns**. Known 12twenty pairings are
    applied automatically (Consolidated Industry -> Industry, School ->
    University, Area of Study -> Expected Field of Study, Year -> "When do you
@@ -47,6 +55,9 @@ npm start
 4. **Review** each column. For every distinct value the tool shows:
    - exact matches (auto-accepted, case/punctuation-insensitive)
    - blanks and N/A-style values (auto-blanked)
+   - known-abbreviation matches (auto-accepted, tagged **alias** — e.g. "CUA"
+     or "The George Washington" both resolve to the right university; see
+     "Alias matching" below)
    - spelling-based fuzzy suggestions with a confidence percentage (>= 85%
      pre-accepted)
    - unresolved values -> click a suggestion, pick from the dropdown,
@@ -64,6 +75,31 @@ npm start
 
 6. **Export import-ready CSV** — writes `12twenty_import_ready.csv` with the
    original headers untouched and only the fixed values changed.
+
+## Alias matching
+
+For the built-in University and City lists (and any other picklist), the tool
+automatically recognizes known abbreviations and alternate forms and resolves
+them with confidence, tagged **alias**:
+
+- Acronyms: "CUA" -> Catholic University of America (DC), "GWU" -> George
+  Washington University (DC)
+- Shorthand: "Catholic U" -> Catholic University of America (DC)
+- Missing "University"/"College" and leading "The": "The George Washington"
+  or plain "George Washington" -> George Washington University (DC)
+- Missing state/country suffix: "Alexandria" -> Alexandria - VA
+- "Uni" for "University": "Uni Records" -> University Records, "Boston Uni"
+  -> Boston University (MA)
+
+These aliases are generated automatically from whatever is in the picklist -
+nothing is hand-typed per institution, so it keeps working as the reference
+file is updated. Unlike the AI-based semantic suggestions below, alias
+matching is deterministic (not a probabilistic guess), and unambiguous by
+construction: if two different options would ever generate the same alias
+(e.g. two schools that could both be "BC"), that alias is dropped rather than
+guessed at, and both are left for manual review instead. Alias matches are
+auto-accepted but stay visible under "needs review" so they're easy to
+double-check or override, same as spelling-based auto-matches.
 
 ## Semantic matching (optional)
 
@@ -94,8 +130,14 @@ with their own confidence score.
 
 ## Project layout
 
+- `public/docs/consolidated_cities_unis.csv` — the bundled reference list
+  (`University`, `City`, `Knowledge Source` columns). Each column becomes its
+  own default picklist; add a column to add a new default field, or edit
+  values and redeploy to update the lists. A column doesn't need a value in
+  every row (see the single-row `Knowledge Source` column).
 - `src/lib/` — pure matching/analysis/CSV logic (no React, no DOM), shared by
-  the main thread and the workers.
+  the main thread and the workers. `aliases.ts` is the abbreviation-matching
+  engine described above.
 - `src/workers/analysis.worker.ts` — runs the spelling-based fuzzy-matching
   analysis off the main thread; always on.
 - `src/workers/embeddings.worker.ts` — loads the optional embedding model and

@@ -3,13 +3,15 @@ import { create } from "zustand";
 
 import { autoMapColumns as computeAutoMap, mergeSemanticIntoAnalysis } from "@/lib/analysis";
 import { onAnalysisResult, requestAnalysis, setRawForAnalysis } from "@/lib/analysisClient";
-import { buildRawData, parsePicklistRows } from "@/lib/csv";
+import { BUILT_IN_PICKLIST_URL } from "@/lib/constants";
+import { buildRawData, parsePicklistColumns, parsePicklistRows } from "@/lib/csv";
 import { loadSemanticModel, onEmbedResult, onModelStatus, requestEmbedSuggestions } from "@/lib/embeddingsClient";
 import { applyMappingImport } from "@/lib/mapping-io";
 import type {
   Analysis,
   ColumnMap,
   EmbedColumnRequest,
+  FilterMode,
   MappingFile,
   ModelStatus,
   Picklist,
@@ -25,7 +27,7 @@ interface AppState {
   columnMap: ColumnMap;
   valueMaps: ValueMaps;
   openCol: number | null;
-  filter: "all" | "unresolved";
+  filter: FilterMode;
   /** string-matching-only pass, from analysis.worker.ts */
   baseAnalysis: Analysis;
   /** baseAnalysis with semantic suggestions layered in (when enabled) - what the UI reads */
@@ -39,13 +41,14 @@ interface AppState {
   semanticSuggestions: SemanticSuggestions;
 
   loadPicklistFiles: (files: FileList) => void;
+  loadBuiltInPicklists: () => void;
   removePicklist: (name: string) => void;
   setActiveColumn: (name: string, col: string) => void;
   loadRawFile: (file: File) => void;
   autoMapColumns: () => void;
   setColumnMap: (hi: number, val: string) => void;
   toggleColumn: (hi: number) => void;
-  setFilter: (f: "all" | "unresolved") => void;
+  setFilter: (f: FilterMode) => void;
   setValueMapping: (hi: number, rawValue: string, mapped: string) => void;
   importMapping: (file: File) => Promise<void>;
   enableSemanticMatching: () => void;
@@ -118,7 +121,7 @@ export const useAppStore = create<AppState>((set, get) => {
     columnMap: {},
     valueMaps: {},
     openCol: null,
-    filter: "unresolved",
+    filter: "needs-review",
     baseAnalysis: {},
     analysis: {},
     analysisStatus: "idle",
@@ -142,6 +145,31 @@ export const useAppStore = create<AppState>((set, get) => {
           },
         });
       });
+    },
+
+    loadBuiltInPicklists: () => {
+      const { picklists } = get();
+      if (Object.values(picklists).some((pl) => pl.builtIn)) return;
+      fetch(BUILT_IN_PICKLIST_URL)
+        .then((res) => (res.ok ? res.text() : null))
+        .then((text) => {
+          if (!text) return;
+          const parsed = Papa.parse<string[]>(text, { skipEmptyLines: true });
+          const fileName = BUILT_IN_PICKLIST_URL.split("/").pop() ?? "built-in";
+          const newPicklists = parsePicklistColumns(fileName, parsed.data).map((pl) => ({ ...pl, builtIn: true }));
+          if (!newPicklists.length) return;
+          set((s) => {
+            const merged = { ...s.picklists };
+            newPicklists.forEach((pl) => {
+              merged[pl.name] = pl;
+            });
+            return { picklists: merged };
+          });
+          triggerAnalysis();
+        })
+        .catch(() => {
+          // built-in reference is a nice-to-have; silently skip if unreachable
+        });
     },
 
     removePicklist: (name) => {
