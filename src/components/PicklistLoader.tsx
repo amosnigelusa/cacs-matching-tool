@@ -1,7 +1,7 @@
 "use client";
 
 import { Upload, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { PICKLIST_TO_COLUMN } from "@/lib/constants";
@@ -11,21 +11,24 @@ import { useAppStore } from "@/store/useAppStore";
 
 import StepBadge from "./StepBadge";
 
+const COLLAPSED_COUNT = 3;
+
 export default function PicklistLoader() {
   const picklists = useAppStore(useShallow((s) => s.picklists));
   const loadPicklistFiles = useAppStore((s) => s.loadPicklistFiles);
   const removePicklist = useAppStore((s) => s.removePicklist);
   const setActiveColumn = useAppStore((s) => s.setActiveColumn);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [expanded, setExpanded] = useState(false);
   const names = Object.keys(picklists);
+  const hasMore = names.length > COLLAPSED_COUNT;
+  const shownNames = expanded ? names : names.slice(0, COLLAPSED_COUNT);
   const { isDragging, onDragOver, onDragLeave, onDrop } = useFileDrop(loadPicklistFiles);
 
   return (
     <div
-      className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors ${
-        isDragging
-          ? "border-teal-500 bg-teal-50 dark:border-teal-500 dark:bg-teal-500/10"
-          : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900"
+      className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors duration-200 ${
+        isDragging ? "border-brand-600 bg-brand-50" : "border-slate-300 bg-white"
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -36,7 +39,7 @@ export default function PicklistLoader() {
           <StepBadge n={1} />
           <div>
             <h3 className="text-[15px] font-semibold">Picklist option files</h3>
-            <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-0.5 text-xs text-slate-500">
               One CSV per field (e.g. Consolidated_Industry.csv). First column = valid options. Drag &amp; drop or
               select several at once; add more later.
             </div>
@@ -44,7 +47,7 @@ export default function PicklistLoader() {
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-teal-700 px-3.5 py-2 text-sm text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-brand-800 active:scale-[0.97]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload size={14} />
@@ -64,7 +67,7 @@ export default function PicklistLoader() {
         }}
       />
       <div className="mt-3 flex flex-col gap-1.5">
-        {names.map((name) => {
+        {shownNames.map((name) => {
           const pl = picklists[name];
           const cols = Object.keys(pl.columns);
           const target = PICKLIST_TO_COLUMN[norm(name)];
@@ -72,22 +75,22 @@ export default function PicklistLoader() {
           return (
             <div
               key={name}
-              className="flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs dark:bg-slate-800"
+              className="animate-fade-in-up flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs transition-colors hover:bg-slate-100/80"
             >
               <span className="font-mono font-semibold">{name}</span>
               {pl.builtIn && (
                 <span
-                  className="rounded bg-teal-100 px-1 text-[10px] font-medium text-teal-700 dark:bg-teal-500/15 dark:text-teal-300"
+                  className="rounded bg-brand-100 px-1 text-[10px] font-medium text-brand-700"
                   title="Bundled with the app; updates automatically when the reference file changes"
                 >
                   default
                 </span>
               )}
-              <span className="text-slate-400 dark:text-slate-500">({optionCount} options)</span>
-              {target && <span className="text-teal-700 dark:text-teal-400">→ {target}</span>}
+              <span className="text-slate-400">({optionCount} options)</span>
+              {target && <span className="text-brand-700">→ {target}</span>}
               {cols.length > 1 && (
                 <select
-                  className="ml-auto rounded border-slate-300 bg-white text-[11px] dark:border-slate-600 dark:bg-slate-900"
+                  className="ml-auto rounded border-slate-300 bg-white text-[11px]"
                   value={pl.activeColumn}
                   onChange={(e) => setActiveColumn(name, e.target.value)}
                 >
@@ -101,7 +104,7 @@ export default function PicklistLoader() {
               <button
                 type="button"
                 title="Remove"
-                className={`rounded p-0.5 text-rose-700 transition-colors hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-500/10 ${
+                className={`rounded p-0.5 text-rose-700 transition-colors hover:bg-rose-100 ${
                   cols.length > 1 ? "" : "ml-auto"
                 }`}
                 onClick={() => removePicklist(name)}
@@ -111,6 +114,15 @@ export default function PicklistLoader() {
             </div>
           );
         })}
+        {hasMore && (
+          <button
+            type="button"
+            className="rounded-lg py-1.5 text-center text-xs font-medium text-brand-700 transition-colors hover:bg-slate-100"
+            onClick={() => setExpanded((e) => !e)}
+          >
+            {expanded ? "Show less" : `Show ${names.length - COLLAPSED_COUNT} more`}
+          </button>
+        )}
       </div>
     </div>
   );

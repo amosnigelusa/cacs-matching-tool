@@ -15,7 +15,7 @@ export default function SemanticMatchToggle() {
 
   if (!enabled) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+      <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs text-slate-500 shadow-sm">
         <span className="flex items-center gap-2">
           <Sparkles size={15} className="shrink-0 text-violet-500" />
           Suggestions above are spelling-based only. Meaning-based matching (e.g. &quot;Nursing&quot; →
@@ -23,7 +23,7 @@ export default function SemanticMatchToggle() {
         </span>
         <button
           type="button"
-          className="shrink-0 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          className="shrink-0 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-all duration-150 hover:bg-slate-50 active:scale-[0.97]"
           onClick={enable}
         >
           Enable smarter matching ({EMBEDDING_MODEL_SIZE_LABEL}, one-time download)
@@ -34,14 +34,14 @@ export default function SemanticMatchToggle() {
 
   if (status === "error") {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800 shadow-sm dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+      <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800 shadow-sm">
         <span className="flex items-center gap-2">
           <AlertTriangle size={15} className="shrink-0" />
           Couldn&apos;t load the matching model{error ? ` (${error})` : ""} — using text matching only.
         </span>
         <button
           type="button"
-          className="shrink-0 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 transition-colors hover:bg-rose-100 dark:border-rose-500/40 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-500/10"
+          className="shrink-0 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 transition-all duration-150 hover:bg-rose-100 active:scale-[0.97]"
           onClick={enable}
         >
           Retry
@@ -52,14 +52,14 @@ export default function SemanticMatchToggle() {
 
   if (status === "ready") {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-xs text-teal-800 shadow-sm dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300">
+      <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-xs text-brand-800 shadow-sm">
         <span className="flex items-center gap-2">
           <CheckCircle2 size={15} className="shrink-0" />
           Smarter matching on — suggestions now include meaning-based matches, downloaded once and cached.
         </span>
         <button
           type="button"
-          className="shrink-0 rounded-lg border border-teal-300 bg-white px-3 py-1.5 text-xs font-medium text-teal-700 transition-colors hover:bg-teal-100 dark:border-teal-500/40 dark:bg-slate-900 dark:text-teal-300 dark:hover:bg-teal-500/10"
+          className="shrink-0 rounded-lg border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 transition-all duration-150 hover:bg-brand-100 active:scale-[0.97]"
           onClick={disable}
         >
           Turn off
@@ -69,16 +69,13 @@ export default function SemanticMatchToggle() {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+    <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
       <span className="flex items-center gap-2">
-        <Loader2 size={15} className="shrink-0 animate-spin text-teal-700 dark:text-teal-400" />
+        <Loader2 size={15} className="shrink-0 animate-spin text-brand-700" />
         Loading smarter matching model… {progress}%
       </span>
-      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-        <div
-          className="h-full rounded-full bg-teal-700 transition-all dark:bg-teal-500"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-slate-200">
+        <div className="h-full rounded-full bg-brand-700 transition-all" style={{ width: `${progress}%` }} />
       </div>
     </div>
   );

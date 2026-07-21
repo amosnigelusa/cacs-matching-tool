@@ -48,41 +48,36 @@ export default function ColumnReviewCard({ hi }: { hi: number }) {
   if (!col) return null;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
         onClick={() => toggleColumn(hi)}
       >
         <span>
           <span className="font-mono text-[13px] font-semibold">{col.header}</span>{" "}
-          <span className="text-[13px] font-normal text-slate-500 dark:text-slate-400">
-            · picklist: {col.picklist}
-          </span>
+          <span className="text-[13px] font-normal text-slate-500">· picklist: {col.picklist}</span>
         </span>
         <span className="flex items-center gap-2">
           {unresolvedCount ? (
-            <span className="flex items-center gap-1 text-[13px] font-semibold text-rose-700 dark:text-rose-400">
+            <span className="flex items-center gap-1 text-[13px] font-semibold text-rose-700">
               <CircleAlert size={14} />
               {unresolvedCount} to fix
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">
+            <span className="flex items-center gap-1 text-[13px] font-semibold text-emerald-700">
               <CheckCircle2 size={14} />
               clean
             </span>
           )}
-          <ChevronRight
-            size={16}
-            className={`text-slate-400 transition-transform dark:text-slate-500 ${open ? "rotate-90" : ""}`}
-          />
+          <ChevronRight size={16} className={`text-slate-400 transition-transform ${open ? "rotate-90" : ""}`} />
         </span>
       </button>
 
       {open && (
-        <div className="border-t border-slate-100 dark:border-slate-800">
+        <div className="animate-fade-in-up border-t border-slate-100">
           {shown.length === 0 ? (
-            <div className="px-4 py-3.5 text-[13px] text-slate-500 dark:text-slate-400">{emptyMessage(filter)}</div>
+            <div className="px-4 py-3.5 text-[13px] text-slate-500">{emptyMessage(filter)}</div>
           ) : shown.length > VIRTUALIZE_THRESHOLD ? (
             <List<VirtualRowProps>
               style={{ height: LIST_HEIGHT }}

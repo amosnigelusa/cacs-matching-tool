@@ -31,33 +31,24 @@ export default function StatBar() {
   const stats = useMemo(() => computeStats(analysis, valueMaps), [analysis, valueMaps]);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
       <div>
-        <b>{stats.resolved}</b>{" "}
-        <span className="text-slate-500 dark:text-slate-400">/ {stats.total} distinct values resolved ·</span>{" "}
-        <span
-          className={
-            stats.unresolved
-              ? "font-semibold text-rose-700 dark:text-rose-400"
-              : "font-semibold text-emerald-700 dark:text-emerald-400"
-          }
-        >
+        <b>{stats.resolved}</b> <span className="text-slate-500">/ {stats.total} distinct values resolved ·</span>{" "}
+        <span className={stats.unresolved ? "font-semibold text-rose-700" : "font-semibold text-emerald-700"}>
           {stats.unresolved} unresolved
         </span>
-        {stats.unresolved > 0 && (
-          <span className="text-slate-500 dark:text-slate-400"> ({stats.rowsAffected} rows affected)</span>
-        )}
+        {stats.unresolved > 0 && <span className="text-slate-500"> ({stats.rowsAffected} rows affected)</span>}
         {analysisStatus === "analyzing" && (
-          <span className="ml-2 inline-flex items-center gap-1 text-slate-400 dark:text-slate-500">
+          <span className="ml-2 inline-flex items-center gap-1 text-slate-400">
             <Loader2 size={12} className="animate-spin" />
             Analyzing…
           </span>
         )}
       </div>
       <div className="flex gap-2">
-        <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700">
-          <ListFilter size={13} className="shrink-0 text-slate-500 dark:text-slate-400" />
-          <span className="text-slate-500 dark:text-slate-400">Showing:</span>
+        <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50">
+          <ListFilter size={13} className="shrink-0 text-slate-500" />
+          <span className="text-slate-500">Showing:</span>
           <select
             className="bg-transparent text-[13px] outline-none"
             value={filter}
@@ -72,7 +63,7 @@ export default function StatBar() {
         </label>
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-all duration-150 hover:bg-slate-50 active:scale-[0.97]"
           onClick={() => {
             if (!raw) return;
             const mapping = buildMappingExport(raw, columnMap, valueMaps);
@@ -84,7 +75,7 @@ export default function StatBar() {
         </button>
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-all duration-150 hover:bg-slate-50 active:scale-[0.97]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload size={13} />

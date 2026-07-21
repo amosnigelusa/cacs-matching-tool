@@ -66,7 +66,7 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
         type="text"
         value={query}
         placeholder={placeholder}
-        className="w-[200px] rounded-md border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-800"
+        className="w-[200px] rounded-md border border-slate-300 bg-white px-2 py-1 text-xs transition-colors focus:border-brand-600"
         onFocus={() => {
           setOpen(true);
           setHighlight(0);
@@ -97,20 +97,18 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
         createPortal(
           <div
             ref={popRef}
-            className="z-50 max-h-60 overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+            className="animate-scale-in z-50 max-h-60 overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg"
             style={{ position: "fixed", top: rect.top, left: rect.left, width: rect.width }}
           >
             {filtered.length === 0 ? (
-              <div className="px-2 py-1.5 text-xs text-slate-400 dark:text-slate-500">No matches</div>
+              <div className="px-2 py-1.5 text-xs text-slate-400">No matches</div>
             ) : (
               filtered.map((o, i) => (
                 <button
                   key={o}
                   type="button"
-                  className={`block w-full truncate px-2 py-1.5 text-left text-xs ${
-                    i === highlight
-                      ? "bg-teal-50 dark:bg-teal-500/10"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-700"
+                  className={`block w-full truncate px-2 py-1.5 text-left text-xs transition-colors ${
+                    i === highlight ? "bg-brand-50" : "hover:bg-slate-50"
                   }`}
                   onMouseEnter={() => setHighlight(i)}
                   onMouseDown={(e) => {
@@ -123,9 +121,7 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
               ))
             )}
             {filtered.length === MAX_RESULTS && (
-              <div className="px-2 py-1 text-[11px] text-slate-400 dark:text-slate-500">
-                Keep typing to narrow further…
-              </div>
+              <div className="px-2 py-1 text-[11px] text-slate-400">Keep typing to narrow further…</div>
             )}
           </div>,
           document.body,

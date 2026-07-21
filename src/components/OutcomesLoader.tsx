@@ -20,10 +20,8 @@ export default function OutcomesLoader() {
 
   return (
     <div
-      className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors ${
-        isDragging
-          ? "border-teal-500 bg-teal-50 dark:border-teal-500 dark:bg-teal-500/10"
-          : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900"
+      className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors duration-200 ${
+        isDragging ? "border-brand-600 bg-brand-50" : "border-slate-300 bg-white"
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -34,11 +32,11 @@ export default function OutcomesLoader() {
           <StepBadge n={2} />
           <div>
             <h3 className="text-[15px] font-semibold">Outcomes data file</h3>
-            <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-0.5 text-xs text-slate-500">
               Your full import file (e.g. cleaned.csv). Headers stay untouched on export.
             </div>
             {rawFile && (
-              <div className="mt-1.5 flex items-center gap-1.5 font-mono text-xs text-teal-700 dark:text-teal-400">
+              <div className="animate-fade-in-up mt-1.5 flex items-center gap-1.5 font-mono text-xs text-brand-700">
                 <FileSpreadsheet size={13} />
                 {rawFile} · {rowCount} rows · {colCount} columns
               </div>
@@ -47,7 +45,7 @@ export default function OutcomesLoader() {
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-teal-700 px-3.5 py-2 text-sm text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-brand-800 active:scale-[0.97]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload size={14} />

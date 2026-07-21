@@ -54,7 +54,7 @@ export default function ImportFixer() {
       {raw && picklistCount > 0 && (
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className="animate-fade-in-up flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-800 hover:shadow-md active:scale-[0.99]"
           onClick={autoMapColumns}
         >
           <Link2 size={17} />
@@ -74,10 +74,8 @@ export default function ImportFixer() {
           ))}
           <button
             type="button"
-            className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] font-semibold text-white shadow-sm transition-colors ${
-              stats.unresolved === 0
-                ? "bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
-                : "bg-slate-700 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
+            className={`animate-fade-in-up flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] font-semibold text-white shadow-sm transition-all duration-150 hover:shadow-md active:scale-[0.99] ${
+              stats.unresolved === 0 ? "bg-emerald-700 hover:bg-emerald-800" : "bg-slate-700 hover:bg-slate-800"
             }`}
             onClick={handleExport}
           >
