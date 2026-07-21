@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { RowComponentProps } from "react-window";
 
+import { MANUALLY_EXTENSIBLE_PICKLISTS } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 import type { EffectiveMapping, ValueRecord } from "@/lib/types";
+import SearchableSelect from "./SearchableSelect";
 
 export interface ShownValue {
   v: ValueRecord;
@@ -17,16 +21,122 @@ function scoreChipClass(score: number) {
   return "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400";
 }
 
+interface AddNewOptionButtonProps {
+  picklistName: string;
+  defaultValue: string;
+  onAdd: (value: string) => void;
+}
+
+/** "+ Add new option" button for open-ended reference picklists (University/City) - lets a value
+ *  with no real match become a new valid option instead of being forced into an existing one */
+function AddNewOptionButton({ picklistName, defaultValue, onAdd }: AddNewOptionButtonProps) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(defaultValue);
+  const [rect, setRect] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) setRect({ top: r.bottom + 4, left: r.left });
+    const close = () => setOpen(false);
+    const onDocClick = (e: MouseEvent) => {
+      if (popRef.current?.contains(e.target as Node) || btnRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    window.addEventListener("scroll", close, true);
+    document.addEventListener("mousedown", onDocClick);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      document.removeEventListener("mousedown", onDocClick);
+    };
+  }, [open]);
+
+  function toggleOpen() {
+    if (!open) setText(defaultValue);
+    setOpen((o) => !o);
+  }
+
+  function submit() {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    onAdd(trimmed);
+    setOpen(false);
+  }
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        className="rounded-md border border-dashed border-teal-600 bg-white px-2 py-1 text-xs text-teal-700 transition-colors hover:bg-teal-50 dark:border-teal-500 dark:bg-slate-800 dark:text-teal-400 dark:hover:bg-teal-500/10"
+        onClick={toggleOpen}
+      >
+        + Add new {picklistName}
+      </button>
+      {open &&
+        rect &&
+        createPortal(
+          <div
+            ref={popRef}
+            className="z-50 w-64 rounded-md border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+            style={{ position: "fixed", top: rect.top, left: rect.left }}
+          >
+            <label className="mb-1 block text-[11px] text-slate-500 dark:text-slate-400">
+              Add a new {picklistName} option
+            </label>
+            <input
+              autoFocus
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  submit();
+                } else if (e.key === "Escape") {
+                  setOpen(false);
+                }
+              }}
+              className="mb-2 w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-900"
+            />
+            <div className="flex justify-end gap-1.5">
+              <button
+                type="button"
+                className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="rounded bg-teal-700 px-2 py-1 text-xs font-medium text-white hover:bg-teal-800"
+                onClick={submit}
+              >
+                Add &amp; use
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
 interface ValueRowContentProps {
   hi: number;
   item: ShownValue;
   options: string[];
+  picklistName: string;
 }
 
-export function ValueRowContent({ hi, item, options }: ValueRowContentProps) {
+export function ValueRowContent({ hi, item, options, picklistName }: ValueRowContentProps) {
   const { v, eff, needsActions } = item;
   const setValueMapping = useAppStore((s) => s.setValueMapping);
+  const addPicklistOption = useAppStore((s) => s.addPicklistOption);
   const apply = (mapped: string) => setValueMapping(hi, v.value, mapped);
+  const isExtensible = MANUALLY_EXTENSIBLE_PICKLISTS.has(picklistName.toLowerCase());
 
   return (
     <div className="border-b border-slate-50 px-4 py-2.5 last:border-b-0 dark:border-slate-800/60">
@@ -83,21 +193,17 @@ export function ValueRowContent({ hi, item, options }: ValueRowContentProps) {
               </span>
             </button>
           ))}
-          <select
-            className="max-w-[240px] rounded-md border border-slate-300 bg-white px-1.5 py-1 text-xs dark:border-slate-700 dark:bg-slate-800"
-            defaultValue=""
-            onChange={(e) => {
-              if (e.target.value) apply(e.target.value);
-              e.currentTarget.value = "";
-            }}
-          >
-            <option value="">pick any option…</option>
-            {options.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+          <SearchableSelect options={options} onSelect={apply} />
+          {isExtensible && (
+            <AddNewOptionButton
+              picklistName={picklistName}
+              defaultValue={v.value}
+              onAdd={(text) => {
+                addPicklistOption(picklistName, text);
+                apply(text);
+              }}
+            />
+          )}
           <button
             type="button"
             className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-500 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
@@ -122,6 +228,7 @@ export interface VirtualRowProps {
   hi: number;
   items: ShownValue[];
   options: string[];
+  picklistName: string;
 }
 
 export function VirtualValueRow({
@@ -131,10 +238,11 @@ export function VirtualValueRow({
   hi,
   items,
   options,
+  picklistName,
 }: RowComponentProps<VirtualRowProps>) {
   return (
     <div style={style} {...ariaAttributes}>
-      <ValueRowContent hi={hi} item={items[index]} options={options} />
+      <ValueRowContent hi={hi} item={items[index]} options={options} picklistName={picklistName} />
     </div>
   );
 }

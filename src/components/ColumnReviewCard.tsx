@@ -88,14 +88,20 @@ export default function ColumnReviewCard({ hi }: { hi: number }) {
               style={{ height: LIST_HEIGHT }}
               overscanCount={6}
               rowCount={shown.length}
-              rowHeight={(index, props) => (props.items[index].needsActions ? 132 : 48)}
+              rowHeight={(index, props) => (props.items[index].needsActions ? 156 : 48)}
               rowComponent={VirtualValueRow}
-              rowProps={{ hi, items: shown, options: col.options }}
+              rowProps={{ hi, items: shown, options: col.options, picklistName: col.picklist }}
             />
           ) : (
             <div className="overflow-auto" style={{ maxHeight: LIST_HEIGHT }}>
               {shown.map((item) => (
-                <ValueRowContent key={item.v.value} hi={hi} item={item} options={col.options} />
+                <ValueRowContent
+                  key={item.v.value}
+                  hi={hi}
+                  item={item}
+                  options={col.options}
+                  picklistName={col.picklist}
+                />
               ))}
             </div>
           )}

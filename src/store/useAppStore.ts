@@ -3,10 +3,11 @@ import { create } from "zustand";
 
 import { autoMapColumns as computeAutoMap, mergeSemanticIntoAnalysis } from "@/lib/analysis";
 import { onAnalysisResult, requestAnalysis, setRawForAnalysis } from "@/lib/analysisClient";
-import { BUILT_IN_PICKLIST_URL } from "@/lib/constants";
+import { BUILT_IN_PICKLISTS } from "@/lib/constants";
 import { buildRawData, parsePicklistColumns, parsePicklistRows } from "@/lib/csv";
 import { loadSemanticModel, onEmbedResult, onModelStatus, requestEmbedSuggestions } from "@/lib/embeddingsClient";
 import { applyMappingImport } from "@/lib/mapping-io";
+import { norm } from "@/lib/text";
 import type {
   Analysis,
   ColumnMap,
@@ -43,6 +44,7 @@ interface AppState {
   loadPicklistFiles: (files: FileList) => void;
   loadBuiltInPicklists: () => void;
   removePicklist: (name: string) => void;
+  addPicklistOption: (picklistName: string, option: string) => void;
   setActiveColumn: (name: string, col: string) => void;
   loadRawFile: (file: File) => void;
   autoMapColumns: () => void;
@@ -150,26 +152,35 @@ export const useAppStore = create<AppState>((set, get) => {
     loadBuiltInPicklists: () => {
       const { picklists } = get();
       if (Object.values(picklists).some((pl) => pl.builtIn)) return;
-      fetch(BUILT_IN_PICKLIST_URL)
-        .then((res) => (res.ok ? res.text() : null))
-        .then((text) => {
-          if (!text) return;
-          const parsed = Papa.parse<string[]>(text, { skipEmptyLines: true });
-          const fileName = BUILT_IN_PICKLIST_URL.split("/").pop() ?? "built-in";
-          const newPicklists = parsePicklistColumns(fileName, parsed.data).map((pl) => ({ ...pl, builtIn: true }));
-          if (!newPicklists.length) return;
-          set((s) => {
-            const merged = { ...s.picklists };
-            newPicklists.forEach((pl) => {
-              merged[pl.name] = pl;
-            });
-            return { picklists: merged };
+
+      Promise.all(
+        BUILT_IN_PICKLISTS.map(({ url, mode }) =>
+          fetch(encodeURI(url))
+            .then((res) => (res.ok ? res.text() : null))
+            .then((text) => {
+              if (!text) return [];
+              const parsed = Papa.parse<string[]>(text, { skipEmptyLines: true });
+              const fileName = url.split("/").pop() ?? "built-in";
+              const parsedPicklists =
+                mode === "columns"
+                  ? parsePicklistColumns(fileName, parsed.data)
+                  : [parsePicklistRows(fileName, parsed.data)].filter((pl): pl is Picklist => pl !== null);
+              return parsedPicklists.map((pl) => ({ ...pl, builtIn: true }));
+            })
+            .catch(() => [] as Picklist[]), // any single file being unreachable shouldn't block the rest
+        ),
+      ).then((results) => {
+        const newPicklists = results.flat();
+        if (!newPicklists.length) return;
+        set((s) => {
+          const merged = { ...s.picklists };
+          newPicklists.forEach((pl) => {
+            merged[pl.name] = pl;
           });
-          triggerAnalysis();
-        })
-        .catch(() => {
-          // built-in reference is a nice-to-have; silently skip if unreachable
+          return { picklists: merged };
         });
+        triggerAnalysis();
+      });
     },
 
     removePicklist: (name) => {
@@ -179,6 +190,29 @@ export const useAppStore = create<AppState>((set, get) => {
         return { picklists: next };
       });
       triggerAnalysis();
+    },
+
+    addPicklistOption: (picklistName, option) => {
+      const trimmed = option.trim();
+      if (!trimmed) return;
+      let added = false;
+      set((s) => {
+        const pl = s.picklists[picklistName];
+        if (!pl) return s;
+        const current = pl.columns[pl.activeColumn] || [];
+        if (current.some((o) => norm(o) === norm(trimmed))) return s;
+        added = true;
+        return {
+          picklists: {
+            ...s.picklists,
+            [picklistName]: {
+              ...pl,
+              columns: { ...pl.columns, [pl.activeColumn]: [...current, trimmed] },
+            },
+          },
+        };
+      });
+      if (added) triggerAnalysis();
     },
 
     setActiveColumn: (name, col) => {

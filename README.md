@@ -28,22 +28,26 @@ npm start
 
 ## How to use
 
-1. **Picklist option files** — load one CSV per field, e.g.
-   `Consolidated_Industry.csv`. The FIRST column of each file is treated as
-   the list of valid options (extra columns are ignored, but you can switch
-   the source column with the small dropdown if needed). Select several files
-   at once, and add more later as you export them from 12twenty.
+1. **Picklist option files** — every standard 12twenty picklist (Consolidated
+   Industry, Consolidated Job Function, Outcome Type, Job Offer Status,
+   Service Duration, Area of Study, Year, State or Province, University, and
+   City) is already loaded for you on startup, tagged **default**. The FIRST
+   column of each file is treated as the list of valid options (extra
+   columns are ignored, but you can switch the source column with the small
+   dropdown if needed). You can still load more CSVs, remove any default you
+   don't need, or override one by loading your own file with the same name —
+   the newly loaded one wins.
 
 2. **Outcomes data file** — load your full import file (e.g. `cleaned.csv`).
    All headers and untouched columns are preserved exactly on export.
 
-   **University, City, and Knowledge Source are already loaded for you** —
-   they're bundled with the app (`public/docs/consolidated_cities_unis.csv`)
-   and load automatically, tagged **default**. Each column in that file
-   becomes its own picklist, so adding a new default field later is just
-   adding a new column. Swap the file and redeploy to update it; no code
-   changes needed. You can still add or remove any of them like any other
-   picklist.
+   Note on **Knowledge Source**: the default picklist for this field
+   intentionally has a single valid option, "University Records" — so any
+   other value in that column (e.g. "Uni Records") gets auto-corrected to
+   it, per your workflow, rather than accepted as-is. The full official
+   Knowledge Source list is still bundled at
+   `public/docs/Knowledge Source.csv` if you ever need to load it manually
+   instead.
 
 3. Click **Attach picklists to data columns**. Known 12twenty pairings are
    applied automatically (Consolidated Industry -> Industry, School ->
@@ -130,11 +134,17 @@ with their own confidence score.
 
 ## Project layout
 
-- `public/docs/consolidated_cities_unis.csv` — the bundled reference list
-  (`University`, `City`, `Knowledge Source` columns). Each column becomes its
-  own default picklist; add a column to add a new default field, or edit
-  values and redeploy to update the lists. A column doesn't need a value in
-  every row (see the single-row `Knowledge Source` column).
+- `public/docs/` — every bundled default picklist CSV. Edit a file's values
+  and redeploy to update that list, no code changes needed; add a new file
+  and register it in `src/lib/constants.ts` (`BUILT_IN_PICKLISTS`) to add a
+  new default field.
+  - `consolidated_cities_unis.csv` — combined reference list (`University`,
+    `City`, `Knowledge Source` columns). Each column becomes its own default
+    picklist. A column doesn't need a value in every row (see the
+    single-row `Knowledge Source` column).
+  - The rest (`Consolidated Industry.csv`, `Area of Study.csv`, etc.) are
+    standard single-field 12twenty picklist exports, loaded the same way a
+    manually-dropped picklist file would be.
 - `src/lib/` — pure matching/analysis/CSV logic (no React, no DOM), shared by
   the main thread and the workers. `aliases.ts` is the abbreviation-matching
   engine described above.
