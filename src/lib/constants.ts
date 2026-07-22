@@ -23,6 +23,7 @@ export const BUILT_IN_PICKLISTS: { url: string; mode: "columns" | "rows" }[] = [
   { url: "/docs/Area of Study.csv", mode: "rows" },
   { url: "/docs/Year.csv", mode: "rows" },
   { url: "/docs/State or Province.csv", mode: "rows" },
+  { url: "/docs/Country.csv", mode: "rows" },
 ];
 
 /* ---- optional semantic matching model ---- */
