@@ -4,14 +4,13 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* CUA brand: cardinal red (primary accent) and navy (institutional accent) */
-  --color-brand-50: #fdf2f3;
-  --color-brand-100: #fbdfe1;
-  --color-brand-200: #f3b7bc;
-  --color-brand-600: #ae1b30;
-  --color-brand-700: #93172a;
-  --color-brand-800: #791322;
+  /* CUA navy: primary UI accent - red is reserved for errors/unresolved values (see status colors
+     used directly via Tailwind's built-in rose/amber/emerald in components) */
+  --color-navy-50: #eef2f6;
+  --color-navy-100: #d6e0eb;
+  --color-navy-600: #1f4272;
   --color-navy-700: #16325c;
+  --color-navy-800: #0f2545;
   --color-navy-900: #0c1f3d;
 }
 

@@ -63,7 +63,7 @@ export default function ColumnMappingTable() {
       {hasMore && (
         <button
           type="button"
-          className="w-full px-4 py-2 text-center text-[13px] font-medium text-brand-700 transition-colors hover:bg-slate-50"
+          className="w-full px-4 py-2 text-center text-[13px] font-medium text-navy-700 transition-colors hover:bg-slate-50"
           onClick={() => setExpanded((e) => !e)}
         >
           {expanded ? "Show less" : `Show ${rowIdx.length - COLLAPSED_COUNT} more`}

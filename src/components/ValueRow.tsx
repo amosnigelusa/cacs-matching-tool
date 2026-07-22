@@ -70,7 +70,7 @@ function AddNewOptionButton({ picklistName, defaultValue, onAdd }: AddNewOptionB
       <button
         ref={btnRef}
         type="button"
-        className="rounded-md border border-dashed border-brand-600 bg-white px-2 py-1 text-xs text-brand-700 transition-colors hover:bg-brand-50"
+        className="rounded-md border border-dashed border-navy-600 bg-white px-2 py-1 text-xs text-navy-700 transition-colors hover:bg-navy-50"
         onClick={toggleOpen}
       >
         + Add new {picklistName}
@@ -109,7 +109,7 @@ function AddNewOptionButton({ picklistName, defaultValue, onAdd }: AddNewOptionB
               </button>
               <button
                 type="button"
-                className="rounded bg-brand-700 px-2 py-1 text-xs font-medium text-white transition-all duration-150 hover:bg-brand-800 active:scale-[0.97]"
+                className="rounded bg-navy-700 px-2 py-1 text-xs font-medium text-white transition-all duration-150 hover:bg-navy-800 active:scale-[0.97]"
                 onClick={submit}
               >
                 Add &amp; use
@@ -143,7 +143,7 @@ export function ValueRowContent({ hi, item, options, picklistName }: ValueRowCon
         <span className="text-[11px] text-slate-400">×{v.count}</span>
         <span className="text-slate-400">→</span>
         {eff.mapped !== null ? (
-          <span className={eff.mapped === "" ? "font-normal italic text-slate-500" : "font-semibold text-brand-800"}>
+          <span className={eff.mapped === "" ? "font-normal italic text-slate-500" : "font-semibold text-emerald-700"}>
             {eff.mapped === "" ? "blank" : eff.mapped}{" "}
             <span className="text-[11px] font-normal text-slate-400">({eff.source})</span>
           </span>
@@ -158,7 +158,7 @@ export function ValueRowContent({ hi, item, options, picklistName }: ValueRowCon
             <button
               key={s.option}
               type="button"
-              className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs transition-colors hover:border-brand-700 hover:bg-brand-50"
+              className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs transition-colors hover:border-navy-700 hover:bg-navy-50"
               onClick={() => apply(s.option)}
             >
               {s.option}

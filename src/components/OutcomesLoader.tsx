@@ -21,7 +21,7 @@ export default function OutcomesLoader() {
   return (
     <div
       className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors duration-200 ${
-        isDragging ? "border-brand-600 bg-brand-50" : "border-slate-300 bg-white"
+        isDragging ? "border-navy-600 bg-navy-50" : "border-slate-300 bg-white"
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -36,7 +36,7 @@ export default function OutcomesLoader() {
               Your full import file (e.g. cleaned.csv). Headers stay untouched on export.
             </div>
             {rawFile && (
-              <div className="animate-fade-in-up mt-1.5 flex items-center gap-1.5 font-mono text-xs text-brand-700">
+              <div className="animate-fade-in-up mt-1.5 flex items-center gap-1.5 font-mono text-xs text-navy-700">
                 <FileSpreadsheet size={13} />
                 {rawFile} · {rowCount} rows · {colCount} columns
               </div>
@@ -45,7 +45,7 @@ export default function OutcomesLoader() {
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-brand-800 active:scale-[0.97]"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-navy-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-navy-800 active:scale-[0.97]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload size={14} />

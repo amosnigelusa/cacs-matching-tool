@@ -66,7 +66,7 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
         type="text"
         value={query}
         placeholder={placeholder}
-        className="w-[200px] rounded-md border border-slate-300 bg-white px-2 py-1 text-xs transition-colors focus:border-brand-600"
+        className="w-[200px] rounded-md border border-slate-300 bg-white px-2 py-1 text-xs transition-colors focus:border-navy-600"
         onFocus={() => {
           setOpen(true);
           setHighlight(0);
@@ -108,7 +108,7 @@ export default function SearchableSelect({ options, onSelect, placeholder = "pic
                   key={o}
                   type="button"
                   className={`block w-full truncate px-2 py-1.5 text-left text-xs transition-colors ${
-                    i === highlight ? "bg-brand-50" : "hover:bg-slate-50"
+                    i === highlight ? "bg-navy-50" : "hover:bg-slate-50"
                   }`}
                   onMouseEnter={() => setHighlight(i)}
                   onMouseDown={(e) => {

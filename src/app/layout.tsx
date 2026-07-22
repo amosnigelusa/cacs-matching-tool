@@ -19,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`h-full ${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="min-h-full bg-slate-50 text-slate-900 antialiased">
         <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
-          <div className="h-1 bg-brand-700" />
+          <div className="h-1 bg-navy-700" />
           <div className="mx-auto flex max-w-[1000px] items-center gap-3 px-6 py-3.5">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
               <Image

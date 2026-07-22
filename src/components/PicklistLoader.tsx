@@ -28,7 +28,7 @@ export default function PicklistLoader() {
   return (
     <div
       className={`rounded-2xl border border-dashed p-5 shadow-sm transition-colors duration-200 ${
-        isDragging ? "border-brand-600 bg-brand-50" : "border-slate-300 bg-white"
+        isDragging ? "border-navy-600 bg-navy-50" : "border-slate-300 bg-white"
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -47,7 +47,7 @@ export default function PicklistLoader() {
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-brand-800 active:scale-[0.97]"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-navy-700 px-3.5 py-2 text-sm text-white transition-all duration-150 hover:bg-navy-800 active:scale-[0.97]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload size={14} />
@@ -80,14 +80,14 @@ export default function PicklistLoader() {
               <span className="font-mono font-semibold">{name}</span>
               {pl.builtIn && (
                 <span
-                  className="rounded bg-brand-100 px-1 text-[10px] font-medium text-brand-700"
+                  className="rounded bg-navy-100 px-1 text-[10px] font-medium text-navy-700"
                   title="Bundled with the app; updates automatically when the reference file changes"
                 >
                   default
                 </span>
               )}
               <span className="text-slate-400">({optionCount} options)</span>
-              {target && <span className="text-brand-700">→ {target}</span>}
+              {target && <span className="text-navy-700">→ {target}</span>}
               {cols.length > 1 && (
                 <select
                   className="ml-auto rounded border-slate-300 bg-white text-[11px]"
@@ -117,7 +117,7 @@ export default function PicklistLoader() {
         {hasMore && (
           <button
             type="button"
-            className="rounded-lg py-1.5 text-center text-xs font-medium text-brand-700 transition-colors hover:bg-slate-100"
+            className="rounded-lg py-1.5 text-center text-xs font-medium text-navy-700 transition-colors hover:bg-slate-100"
             onClick={() => setExpanded((e) => !e)}
           >
             {expanded ? "Show less" : `Show ${names.length - COLLAPSED_COUNT} more`}

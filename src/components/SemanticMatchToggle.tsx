@@ -52,14 +52,14 @@ export default function SemanticMatchToggle() {
 
   if (status === "ready") {
     return (
-      <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-xs text-brand-800 shadow-sm">
+      <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 shadow-sm">
         <span className="flex items-center gap-2">
           <CheckCircle2 size={15} className="shrink-0" />
           Smarter matching on — suggestions now include meaning-based matches, downloaded once and cached.
         </span>
         <button
           type="button"
-          className="shrink-0 rounded-lg border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 transition-all duration-150 hover:bg-brand-100 active:scale-[0.97]"
+          className="shrink-0 rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-700 transition-all duration-150 hover:bg-emerald-100 active:scale-[0.97]"
           onClick={disable}
         >
           Turn off
@@ -71,11 +71,11 @@ export default function SemanticMatchToggle() {
   return (
     <div className="animate-fade-in-up flex items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
       <span className="flex items-center gap-2">
-        <Loader2 size={15} className="shrink-0 animate-spin text-brand-700" />
+        <Loader2 size={15} className="shrink-0 animate-spin text-navy-700" />
         Loading smarter matching model… {progress}%
       </span>
       <div className="h-1.5 w-32 overflow-hidden rounded-full bg-slate-200">
-        <div className="h-full rounded-full bg-brand-700 transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-full rounded-full bg-navy-700 transition-all" style={{ width: `${progress}%` }} />
       </div>
     </div>
   );

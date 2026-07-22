@@ -54,7 +54,7 @@ export default function ImportFixer() {
       {raw && picklistCount > 0 && (
         <button
           type="button"
-          className="animate-fade-in-up flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-800 hover:shadow-md active:scale-[0.99]"
+          className="animate-fade-in-up flex w-full items-center justify-center gap-2 rounded-xl bg-navy-700 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-navy-800 hover:shadow-md active:scale-[0.99]"
           onClick={autoMapColumns}
         >
           <Link2 size={17} />
