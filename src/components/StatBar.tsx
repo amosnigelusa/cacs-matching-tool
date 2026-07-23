@@ -66,7 +66,7 @@ export default function StatBar() {
           className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] transition-all duration-150 hover:bg-slate-50 active:scale-[0.97]"
           onClick={() => {
             if (!raw) return;
-            const mapping = buildMappingExport(raw, columnMap, valueMaps);
+            const mapping = buildMappingExport(raw, columnMap, valueMaps, analysis);
             triggerDownload("12twenty_value_mappings.json", JSON.stringify(mapping, null, 2), "application/json");
           }}
         >

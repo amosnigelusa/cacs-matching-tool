@@ -31,6 +31,21 @@ export default function ImportFixer() {
     loadBuiltInPicklists();
   }, [loadBuiltInPicklists]);
 
+  useEffect(() => {
+    // warn on refresh/close if there are manual decisions that were never exported via "Save
+    // mappings" - reads live state (not the reactive `valueMaps` above) so it's never stale
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      const hasManualDecisions = Object.values(useAppStore.getState().valueMaps).some(
+        (m) => Object.keys(m).length > 0,
+      );
+      if (!hasManualDecisions) return;
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
+
   const attached = Object.values(columnMap).some((v) => v !== PASSTHROUGH);
   const hasColumnMap = Object.keys(columnMap).length > 0;
   const stats = useMemo(() => computeStats(analysis, valueMaps), [analysis, valueMaps]);

@@ -5,6 +5,7 @@ import { autoMapColumns as computeAutoMap, mergeSemanticIntoAnalysis } from "@/l
 import { onAnalysisResult, requestAnalysis, setRawForAnalysis } from "@/lib/analysisClient";
 import { BUILT_IN_PICKLISTS } from "@/lib/constants";
 import { buildRawData, parsePicklistColumns, parsePicklistRows } from "@/lib/csv";
+import { loadCustomOptions, saveCustomOption } from "@/lib/customOptions";
 import { loadSemanticModel, onEmbedResult, onModelStatus, requestEmbedSuggestions } from "@/lib/embeddingsClient";
 import { applyMappingImport } from "@/lib/mapping-io";
 import { norm } from "@/lib/text";
@@ -170,7 +171,14 @@ export const useAppStore = create<AppState>((set, get) => {
             .catch(() => [] as Picklist[]), // any single file being unreachable shouldn't block the rest
         ),
       ).then((results) => {
-        const newPicklists = results.flat();
+        const newPicklists = results.flat().map((pl) => {
+          const custom = loadCustomOptions(pl.name);
+          if (!custom.length) return pl;
+          const current = pl.columns[pl.activeColumn] || [];
+          const toAdd = custom.filter((c) => !current.some((o) => norm(o) === norm(c)));
+          if (!toAdd.length) return pl;
+          return { ...pl, columns: { ...pl.columns, [pl.activeColumn]: [...current, ...toAdd] } };
+        });
         if (!newPicklists.length) return;
         set((s) => {
           const merged = { ...s.picklists };
@@ -212,7 +220,10 @@ export const useAppStore = create<AppState>((set, get) => {
           },
         };
       });
-      if (added) triggerAnalysis();
+      if (added) {
+        saveCustomOption(picklistName, trimmed);
+        triggerAnalysis();
+      }
     },
 
     setActiveColumn: (name, col) => {
@@ -223,6 +234,15 @@ export const useAppStore = create<AppState>((set, get) => {
     },
 
     loadRawFile: (file) => {
+      const { raw: prevRaw, valueMaps } = get();
+      const hasManualDecisions = Object.values(valueMaps).some((m) => Object.keys(m).length > 0);
+      if (prevRaw && hasManualDecisions) {
+        const proceed = window.confirm(
+          "Replacing the outcomes file will clear your manual value decisions for the current one. " +
+            "Click Cancel and use “Save mappings” first if you want to keep them - continue anyway?",
+        );
+        if (!proceed) return;
+      }
       Papa.parse(file, {
         skipEmptyLines: true,
         worker: true,

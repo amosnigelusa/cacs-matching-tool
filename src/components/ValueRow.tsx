@@ -88,6 +88,7 @@ function AddNewOptionButton({ picklistName, defaultValue, onAdd }: AddNewOptionB
               autoFocus
               type="text"
               value={text}
+              maxLength={250}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {

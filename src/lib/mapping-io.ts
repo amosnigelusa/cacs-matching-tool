@@ -1,14 +1,27 @@
+import { effectiveFor } from "./analysis";
 import { PASSTHROUGH } from "./types";
-import type { ColumnMap, MappingFile, RawData, ValueMaps } from "./types";
+import type { Analysis, ColumnMap, MappingFile, RawData, ValueMaps } from "./types";
 
-/** mappings are saved keyed by header NAME so they survive column reordering */
-export function buildMappingExport(raw: RawData, columnMap: ColumnMap, valueMaps: ValueMaps): MappingFile {
+/**
+ * Mappings are saved keyed by header NAME so they survive column reordering. Exports every
+ * resolved value - not just manual overrides - so exact/alias/auto-matches from this file become
+ * reusable, reproducible decisions on a future file, instead of being silently re-derived (and
+ * possibly scored differently) each time.
+ */
+export function buildMappingExport(raw: RawData, columnMap: ColumnMap, valueMaps: ValueMaps, analysis: Analysis): MappingFile {
   const byName: MappingFile = { columnMap: {}, valueMaps: {} };
   Object.entries(columnMap).forEach(([hi, pl]) => {
     if (pl !== PASSTHROUGH) byName.columnMap[raw.headers[Number(hi)]] = pl;
   });
-  Object.entries(valueMaps).forEach(([hi, m]) => {
-    byName.valueMaps[raw.headers[Number(hi)]] = m;
+  Object.entries(analysis).forEach(([hiStr, col]) => {
+    const hi = Number(hiStr);
+    const userMap = valueMaps[hi];
+    const resolved: Record<string, string> = {};
+    col.values.forEach((v) => {
+      const eff = effectiveFor(v, userMap);
+      if (eff.mapped !== null) resolved[v.value] = eff.mapped;
+    });
+    if (Object.keys(resolved).length) byName.valueMaps[raw.headers[hi]] = resolved;
   });
   return byName;
 }
