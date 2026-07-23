@@ -40,7 +40,11 @@ function AddNewOptionButton({ picklistName, defaultValue, onAdd }: AddNewOptionB
     if (!open) return;
     const r = btnRef.current?.getBoundingClientRect();
     if (r) setRect({ top: r.bottom + 4, left: r.left });
-    const close = () => setOpen(false);
+    const close = (e: Event) => {
+      // ignore the input's own internal scroll as its text overflows the visible width
+      if (popRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
     const onDocClick = (e: MouseEvent) => {
       if (popRef.current?.contains(e.target as Node) || btnRef.current?.contains(e.target as Node)) return;
       setOpen(false);
